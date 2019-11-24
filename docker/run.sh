@@ -173,9 +173,9 @@ echo "    after-by-dst: \$MMAP_DEFAULT" >> /usr/local/etc/sagan.yaml
 echo "    after-by-username: \$MMAP_DEFAULT" >> /usr/local/etc/sagan.yaml
 echo "    track-clients: \$MMAP_DEFAULT" >> /usr/local/etc/sagan.yaml
 
-echo "  geoip:" >> /usr/local/etc/sagan.yaml
-echo "    enabled: yes" >> /usr/local/etc/sagan.yaml
-echo "    country_database: ${COUNTRY_DB}" >> /usr/local/etc/sagan.yaml
+#echo "  geoip:" >> /usr/local/etc/sagan.yaml
+#echo "    enabled: yes" >> /usr/local/etc/sagan.yaml
+#echo "    country_database: ${COUNTRY_DB}" >> /usr/local/etc/sagan.yaml
 
 echo "  liblognorm:" >> /usr/local/etc/sagan.yaml
 echo "    enabled: yes" >> /usr/local/etc/sagan.yaml
@@ -203,7 +203,7 @@ EOM
 
 echo "rules-files:" >> /usr/local/etc/sagan.yaml
 if [ -f "${RULE_PATH}/config_data" ];then
-    for i in $(cat ${RULE_PATH}/config_data | grep \.rules$ | awk '{ print $NF }'); do
+    for i in $(grep -v '^\s*#' ${RULE_PATH}/config_data | grep \.rules$ | awk '{ print $NF }'); do
         echo "  - ${i}" >> /usr/local/etc/sagan.yaml
     done
 fi
@@ -219,7 +219,7 @@ chown nobody:sagan /var/log/sagan -R
 
 chown -R sagan:sagan /var/log/sagan /var/run/sagan
 #chown -R demo:sagan /usr/local/etc/
-#mkfifo /var/run/sagan.fifo
+mkfifo /var/run/sagan.fifo
 chown sagan:sagan /var/run/sagan.fifo
 chmod 666 /var/run/sagan.fifo /var/log/*
 chmod ugo+x /var/log/sagan
