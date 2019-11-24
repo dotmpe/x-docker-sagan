@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -e
+
+#test ! -e /var/run/sagan.fifo || rm -rf /var/run/sagan.fifo
+#mkfifo /var/run/sagan.fifo
+#syslog-ng-ctl reload
+
+/root/run.sh &

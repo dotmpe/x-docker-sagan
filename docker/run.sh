@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 ################################
 # SAGAN-GROUPS
 : ${FIFO:="/var/run/sagan.fifo"}
@@ -102,91 +104,92 @@ echo "Creating Config"
 
 rm -Rf /usr/local/etc/sagan.yaml
 touch /usr/local/etc/sagan.yaml
+{
+  echo "%YAML 1.1"
+  echo "---"
 
-echo "%YAML 1.1" >> /usr/local/etc/sagan.yaml
-echo "---" >> /usr/local/etc/sagan.yaml
+  echo "vars:"
+  echo "  sagan-groups:"
+  for i in $SAGAN_GROUPS;do
+      if [ ! -z "${!i}" ];then
+          echo "    ${i}: ${!i}"
+      fi
+  done
+  echo "  port-groups:"
+  for i in $PORT_GROUPS;do
+      if [ ! -z "${!i}" ];then
+          echo "    ${i}: ${!i}"
+      fi
+  done
+  echo "  geoip-groups:"
+  for i in $GEOIP_GROUPS;do
+      if [ ! -z "${!i}" ];then
+          echo "    ${i}: ${!i}"
+      fi
+  done
+  echo "  aetas-groups:"
+  for i in $AETAS_GROUPS;do
+      if [ ! -z "${!i}" ];then
+          echo "    ${i}: ${!i}"
+      fi
+  done
+  echo "  mmap-groups:"
+  for i in $MMAP_GROUPS;do
+      if [ ! -z "${!i}" ];then
+          echo "    ${i}: ${!i}"
+      fi
+  done
+  echo "  address-groups:"
+  for i in $ADDRESS_GROUPS;do
+      if [ ! -z "${!i}" ];then
+          echo "    ${i}: ${!i}"
+      fi
+  done
+  echo "  misc-groups:"
+  for i in $MISC_GROUPS;do
+      if [ ! -z "${!i}" ];then
+          echo "    ${i}: ${!i}"
+      fi
+  done
 
-echo "vars:" >> /usr/local/etc/sagan.yaml
-echo "  sagan-groups:" >> /usr/local/etc/sagan.yaml
-for i in $SAGAN_GROUPS;do
-    if [ ! -z "${!i}" ];then
-        echo "    ${i}: ${!i}" >> /usr/local/etc/sagan.yaml
-    fi
-done
-echo "  port-groups:" >> /usr/local/etc/sagan.yaml
-for i in $PORT_GROUPS;do
-    if [ ! -z "${!i}" ];then
-        echo "    ${i}: ${!i}" >> /usr/local/etc/sagan.yaml
-    fi
-done
-echo "  geoip-groups:" >> /usr/local/etc/sagan.yaml
-for i in $GEOIP_GROUPS;do
-    if [ ! -z "${!i}" ];then
-        echo "    ${i}: ${!i}" >> /usr/local/etc/sagan.yaml
-    fi
-done
-echo "  aetas-groups:" >> /usr/local/etc/sagan.yaml
-for i in $AETAS_GROUPS;do
-    if [ ! -z "${!i}" ];then
-        echo "    ${i}: ${!i}" >> /usr/local/etc/sagan.yaml
-    fi
-done
-echo "  mmap-groups:" >> /usr/local/etc/sagan.yaml
-for i in $MMAP_GROUPS;do
-    if [ ! -z "${!i}" ];then
-        echo "    ${i}: ${!i}" >> /usr/local/etc/sagan.yaml
-    fi
-done
-echo "  address-groups:" >> /usr/local/etc/sagan.yaml
-for i in $ADDRESS_GROUPS;do
-    if [ ! -z "${!i}" ];then
-        echo "    ${i}: ${!i}" >> /usr/local/etc/sagan.yaml
-    fi
-done
-echo "  misc-groups:" >> /usr/local/etc/sagan.yaml
-for i in $MISC_GROUPS;do
-    if [ ! -z "${!i}" ];then
-        echo "    ${i}: ${!i}" >> /usr/local/etc/sagan.yaml
-    fi
-done
+  echo "sagan-core:"
+  echo "  core:"
+  for i in $CORE;do
+      if [ ! -z "${!i}" ];then
+          echo "    $(echo -n $i | sed 's/_/-/g'): ${!i}"
+      fi
+  done
 
-echo "sagan-core:" >> /usr/local/etc/sagan.yaml
-echo "  core:" >> /usr/local/etc/sagan.yaml
-for i in $CORE;do
-    if [ ! -z "${!i}" ];then
-        echo "    $(echo -n $i | sed 's/_/-/g'): ${!i}" >> /usr/local/etc/sagan.yaml
-    fi
-done
+  cat <<EOM
 
-echo "  selector:" >> /usr/local/etc/sagan.yaml
-echo "    enabled: ${USE_SELECTOR}" >> /usr/local/etc/sagan.yaml
-echo "    name: ${SELECTOR_NAME}" >> /usr/local/etc/sagan.yaml
+  selector:
+    enabled: ${USE_SELECTOR}
+    name: ${SELECTOR_NAME}
 
-echo "  mmap-ipc:" >> /usr/local/etc/sagan.yaml
-echo "    ipc-directory: /var/run/sagan" >> /usr/local/etc/sagan.yaml
-echo "    xbit: \$MMAP_DEFAULT" >> /usr/local/etc/sagan.yaml
-echo "    threshold-by-src: \$MMAP_DEFAULT" >> /usr/local/etc/sagan.yaml
-echo "    threshold-by-dst: \$MMAP_DEFAULT" >> /usr/local/etc/sagan.yaml
-echo "    threshold-by-username: \$MMAP_DEFAULT" >> /usr/local/etc/sagan.yaml
-echo "    after-by-src: \$MMAP_DEFAULT" >> /usr/local/etc/sagan.yaml
-echo "    after-by-dst: \$MMAP_DEFAULT" >> /usr/local/etc/sagan.yaml
-echo "    after-by-username: \$MMAP_DEFAULT" >> /usr/local/etc/sagan.yaml
-echo "    track-clients: \$MMAP_DEFAULT" >> /usr/local/etc/sagan.yaml
+  mmap-ipc:
+    ipc-directory: /var/run/sagan
+    xbit: \$MMAP_DEFAULT
+    threshold-by-src: \$MMAP_DEFAULT
+    threshold-by-dst: \$MMAP_DEFAULT
+    threshold-by-username: \$MMAP_DEFAULT
+    after-by-src: \$MMAP_DEFAULT
+    after-by-dst: \$MMAP_DEFAULT
+    after-by-username: \$MMAP_DEFAULT
+    track-clients: \$MMAP_DEFAULT
 
-#echo "  geoip:" >> /usr/local/etc/sagan.yaml
-#echo "    enabled: yes" >> /usr/local/etc/sagan.yaml
-#echo "    country_database: ${COUNTRY_DB}" >> /usr/local/etc/sagan.yaml
+  geoip:
+    enabled: yes
+    country_database: ${COUNTRY_DB}
 
-echo "  liblognorm:" >> /usr/local/etc/sagan.yaml
-echo "    enabled: yes" >> /usr/local/etc/sagan.yaml
-echo "    normalize_rulebase: ${normalize_rulebase}" >> /usr/local/etc/sagan.yaml
+  liblognorm:
+    enabled: yes
+    normalize_rulebase: ${normalize_rulebase}
 
-echo "processors:" >> /usr/local/etc/sagan.yaml
-echo "  - track-clients:" >> /usr/local/etc/sagan.yaml
-echo "      enabled: yes" >> /usr/local/etc/sagan.yaml
-echo "      timeout: ${trackclients}" >> /usr/local/etc/sagan.yaml
+processors:
+  - track-clients:
+      enabled: yes
+      timeout: ${trackclients}
 
-{ cat <<EOM
 outputs:
   - syslog:
       enabled: no
@@ -199,18 +202,17 @@ outputs:
       enabled: yes
       filename: "$LOG_PATH/alert.log"
 EOM
+
+  echo "rules-files:"
+  if [ -f "${RULE_PATH}/config_data" ];then
+      for i in $(grep -v '^\s*#' ${RULE_PATH}/config_data | grep \.rules$ | awk '{ print $NF }'); do
+          echo "  - ${i}"
+      done
+  fi
+
+  echo ""
+
 } >> /usr/local/etc/sagan.yaml
-
-echo "rules-files:" >> /usr/local/etc/sagan.yaml
-if [ -f "${RULE_PATH}/config_data" ];then
-    for i in $(grep -v '^\s*#' ${RULE_PATH}/config_data | grep \.rules$ | awk '{ print $NF }'); do
-        echo "  - ${i}" >> /usr/local/etc/sagan.yaml
-    done
-fi
-
-echo "" >> /usr/local/etc/sagan.yaml
-
-cat /usr/local/etc/sagan.yaml
 
 mkdir -p /var/run/sagan
 mkdir -p /var/log/sagan
@@ -218,8 +220,6 @@ chown nobody:sagan /var/run/sagan -R
 chown nobody:sagan /var/log/sagan -R
 
 chown -R sagan:sagan /var/log/sagan /var/run/sagan
-#chown -R demo:sagan /usr/local/etc/
-mkfifo /var/run/sagan.fifo
 chown sagan:sagan /var/run/sagan.fifo
 chmod 666 /var/run/sagan.fifo /var/log/*
 chmod ugo+x /var/log/sagan

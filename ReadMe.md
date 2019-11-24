@@ -1,42 +1,28 @@
 This is part of dev/SIEM
 
-## Log
-
-### [2019-11-23] 
-Trying to give quadrantsec's Sagan a spin in docker. Found a year old docker
-image.
-
-After cloning `sagan-rules`, and adding a file config_data to its checkout,
-e.g.:
+To compile `sagan-dev:baseimage-${base}` and run:
 ```
-include $RULE_PATH/apache.rules
-include $RULE_PATH/apc-emu.rules
-include $RULE_PATH/arp.rules
-include $RULE_PATH/asterisk.rules
+./run-sagan.sh
+```
+Where `base` is `master|latest|0.11|...` (`phusion/baseimage` tag)
+
+To test:
+```
+docker exec -ti sagan_dev logger -t sshd "User ubuntu not allowed because shell /etc/passwd is not executable"
 ```
 
-Then the following goes a long way:
-```
-docker run -ti --rm -v $HOME/project/sagan-rules:/usr/local/etc/sagan-rules defensative/def-sagan:defensative-1.8
-```
-But startup still fails at sagan user, or some missing dir.
+v0.2
+: New build based on phusion/baseimage. Configured to receive local syslog-ng.
+  Still uses the old `docker/run.sh` and config generator.
 
-Need ``--env default_host=192.168.9.31`` probably?
+v0.1
+: Initial running server [2019-11-23](log/2019-11-23.md)
 
-###### Other observations
-The installation instructions are slightly stale
-<https://wiki.quadrantsec.com/bin/view/Main/SaganInstall>,
-missing some bit on ``autogen.sh``. Just like `jonschipp`'s Dockerfile.
-<https://github.com/jonschipp/dockerfiles/blob/master/islet-sagan/Dockerfile>
-
-Maybe `defensative` will run still, did not test yet.
-<https://hub.docker.com/r/defensative/def-sagan/dockerfile/>
-
-##### Conclusion
-``/root/run.sh`` is not up to run latest version.
-
-Hacking gets it running to read rsyslog pipe, but not JSON. No mention of failed
-or successful mapping.
-
-TODO: remote rsyslog
-
+#### Bugs
+- Alert shows two events for test-case, why?
+- Cannot build with `configure.sh --disable-syslog`:
+  ```
+  config-yaml.c: In function ‘Load_YAML_Config’:
+  config-yaml.c:2816:1: error: expected declaration or statement at end of input
+   }
+  ```
