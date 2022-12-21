@@ -3,7 +3,7 @@ include $RULE_PATH/attack.rules
 include $RULE_PATH/bash.rules
 include $RULE_PATH/bind.rules
 include $RULE_PATH/blacklist.rules
-#include $RULE_PATH/dynamic.rules
+include $RULE_PATH/dynamic.rules
 include $RULE_PATH/linux-kernel.rules
 include $RULE_PATH/mysql.rules
 include $RULE_PATH/nginx.rules

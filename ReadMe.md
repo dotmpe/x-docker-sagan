@@ -1,6 +1,14 @@
-This is part of dev/SIEM
+This is part of dev/Cloud/SIEM
 
-To compile `sagan-dev:baseimage-${base}` and run:
+- Sagan is a log processor.
+- Enterprise Log Search and Archive (ELSA)
+
+
+# Containerized Sagan
+
+Build from ./Dockerfile.
+
+To compile `sagan-dev:baseimage-${base}` and run use:
 ```
 ./run-sagan.sh
 ```
@@ -10,6 +18,14 @@ To test:
 ```
 docker exec -ti sagan_dev logger -t sshd "User ubuntu not allowed because shell /etc/passwd is not executable"
 ```
+
+To use, point rsyslog to send logs to UDP 5514.
+
+
+# Log
+
+[2022-12-21]
+: Committing accumulated, some initial script to build ELSA image as well
 
 v0.2
 : New build based on phusion/baseimage. Configured to receive local syslog-ng.

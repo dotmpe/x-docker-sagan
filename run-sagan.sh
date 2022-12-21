@@ -1,21 +1,30 @@
-set -e
-test -d ../sagan-rules || {
-  git clone http://github.com/beave/sagan-rules ../sagan-rules
-  cp config_ddata ../sagan-rules/
-}
-#: ${HOME_COUNTRY:="[NL]"}
+set -eu
+#test -d ../sagan-rules && {
+#  ( cd ../sagan-rules && git pull ) || exit
+#} || {
+#  git clone http://github.com/quadrantsec/sagan-rules ../sagan-rules
+#}
+cp config_data ../sagan-rules/
 #: ${default_host:=192.168.9.31}
 #  --env default_host=$default_host \
-: ${base:=master}
-: ${domain:=localhost.localdomain}
+: "${base:=master}"
+: "${sagan_version:=v,2,0.2}"
+#: "${sagan_version:=main}"
+: "${domain:=$(hostname -f)}"
+: "${domain:=localhost.localdomain}"
+# Lower lost-client alert delay from 12h to 1h
+trackclients=60
+# XXX: default_host should be IP addr I think
 docker build . \
   -t sagan-dev:baseimage-$base \
-  --build-arg base=$base
+  --build-arg base=$base \
+  --build-arg sagan_version=$sagan_version
 docker run -ti --rm \
   --name sagan_dev \
   --hostname sagan-dev.${domain} \
-  --env input_type=pipe \
-  --env HOME_COUNTRY=$HOME_COUNTRY \
+  --env default_host=sagan-dev.${domain} \
+  --env trackclients=$trackclients \
+	-p 5514:514/udp \
   -v $PWD/sagan-logs:/var/log/sagan \
   -v $PWD/../sagan-rules:/usr/local/etc/sagan-rules \
-  sagan-dev:baseimage-$base
+  sagan-dev:baseimage-$base "$@"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 ################################
 # SAGAN-GROUPS
@@ -29,7 +29,7 @@ set -e
 : ${SQUID_PORT:="3128"}
 ####################
 # GEOIP-GROUPS
-: ${HOME_COUNTRY:="[US]"}
+#: ${HOME_COUNTRY:="[US]"}
 ####################
 # AETAS-GROUPS
 : ${SAGAN_HOURS:="0700-1800"}
@@ -55,10 +55,11 @@ set -e
 
 ####################
 # CORE
+: ${sensor_name:="default_sensor_name"}
+: ${default_host:="169.254.0.1"}
 : ${default_port:="514"}
 : ${default_proto:="udp"}
 : ${max_threads:="100"}
-: ${default_host:="169.254.0.1"}
 : ${classification:="$RULE_PATH/classification.config"}
 : ${reference:="$RULE_PATH/reference.config"}
 : ${gen_msg_map:="$RULE_PATH/gen-msg.map"}
@@ -81,24 +82,25 @@ set -e
 : ${SELECTOR_NAME:="selector"}
 ################################
 # MISC INFO
-: ${COUNTRY_DB:="/usr/share/GeoIP/Geo-Country.mmdb"}
+# [2022-04-30] Removed GeoIP as DB is no longer public
+#: ${COUNTRY_DB:="/usr/share/GeoIP/Geo-Country.mmdb"}
 
 
 SAGAN_GROUPS="FIFO RULE_PATH LOCKFILE LOG_PATH"
 PORT_GROUPS="SSH_PORT HTTP_PORT HTTPS_PORT TELNET_PORT DNS_PORT SNMP_PORT POP3_PORT IMAP_PORT SMTP_PORT MYSQL_PORT MSSQL_PORT NTP_PORT OPENVPN_PORT PPTP_PORT FTP_PORT RSYNC_PORT SQUID_PORT"
-GEOIP_GROUPS="HOME_COUNTRY"
+#GEOIP_GROUPS="HOME_COUNTRY"
 AETAS_GROUPS="SAGAN_HOURS SAGAN_DAYS"
 MMAP_GROUPS="MMAP_DEFAULT"
 ADDRESS_GROUPS="HOME_NET EXTERNAL_NET"
 MISC_GROUPS="CREDIT_CARD_PREFIXES RFC1918 WINDOWS_DOMAINS PSEXEC_MD5"
 
-CORE="default_port default_proto max_threads default_host classification reference gen_msg_map protocol_map input_type json_map json_software"
+CORE="sensor_name default_host default_port default_proto max_threads default_host classification reference gen_msg_map protocol_map input_type json_map json_software"
 
-echo "Updating GeoIP"
-mkdir -p /usr/share/GeoIP
-cd /usr/share/GeoIP
-curl -z Geo-Country.mmdb.gz -o Geo-Country.mmdb.gz https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz >/dev/null
-gzip -fqdk /usr/share/GeoIP/Geo-Country.mmdb.gz
+#echo "Updating GeoIP"
+#mkdir -p /usr/share/GeoIP
+#cd /usr/share/GeoIP
+#curl -z Geo-Country.mmdb.gz -o Geo-Country.mmdb.gz https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz >/dev/null
+#gzip -fqdk /usr/share/GeoIP/Geo-Country.mmdb.gz
 
 echo "Creating Config"
 
@@ -121,12 +123,12 @@ touch /usr/local/etc/sagan.yaml
           echo "    ${i}: ${!i}"
       fi
   done
-  echo "  geoip-groups:"
-  for i in $GEOIP_GROUPS;do
-      if [ ! -z "${!i}" ];then
-          echo "    ${i}: ${!i}"
-      fi
-  done
+  #echo "  geoip-groups:"
+  #for i in $GEOIP_GROUPS;do
+  #    if [ ! -z "${!i}" ];then
+  #        echo "    ${i}: ${!i}"
+  #    fi
+  #done
   echo "  aetas-groups:"
   for i in $AETAS_GROUPS;do
       if [ ! -z "${!i}" ];then
@@ -177,33 +179,58 @@ touch /usr/local/etc/sagan.yaml
     after-by-username: \$MMAP_DEFAULT
     track-clients: \$MMAP_DEFAULT
 
-  geoip:
-    enabled: yes
-    country_database: ${COUNTRY_DB}
-
   liblognorm:
     enabled: yes
     normalize_rulebase: ${normalize_rulebase}
 
 processors:
-  - track-clients:
-      enabled: yes
-      timeout: ${trackclients}
+- track-clients:
+    enabled: yes
+    timeout: ${trackclients}
+
+- dynamic-load:
+    enabled: yes
+    sample-rate: 100          # How often to test for new samples.
+    type: dynamic_load        # What to do on detection of new logs.
+
+- client-stats:
+    enabled: yes
+    time: 600
+    data-interval: 600
+    filename: "$LOG_PATH/stats/client-stats.json"
+    max-clients: 1000
+
+- stats-json:
+    enabled: yes
+    time: 3600
+    subtract_old_values: true
+    filename: "$LOG_PATH/stats/stats.json"
+
+- rule-tracking:
+    enabled: yes
+    console: disabled
+    syslog: enabled
+    time: 1440
 
 outputs:
-  - syslog:
-      enabled: no
-  #- eve-log:
-  #    enabled: yes
-  #    logs: yes
-  #    alerts: yes
-  #    filename: ${SOCKET_PATH}
-  - alert:
-      enabled: yes
-      filename: "$LOG_PATH/alert.log"
+- syslog:
+    enabled: no
+- eve-log:
+    enabled: yes
+    logs: yes
+    alerts: yes
+    filename: $LOG_PATH/eve.json
+#    filename: ${SOCKET_PATH}
+- alert:
+    enabled: yes
+    filename: "$LOG_PATH/alert.log"
+- fast:
+    enabled: yes
+    filename: "$LOG_PATH/fast.log"
 EOM
 
   echo "rules-files:"
+
   if [ -f "${RULE_PATH}/config_data" ];then
       for i in $(grep -v '^\s*#' ${RULE_PATH}/config_data | grep \.rules$ | awk '{ print $NF }'); do
           echo "  - ${i}"
@@ -216,13 +243,19 @@ EOM
 
 mkdir -p /var/run/sagan
 mkdir -p /var/log/sagan
+
+test -p /var/run/sagan.fifo ||
+  mkfifo /var/run/sagan.fifo
+chmod 420 /var/run/sagan.fifo
+
 chown nobody:sagan /var/run/sagan -R
 chown nobody:sagan /var/log/sagan -R
 
 chown -R sagan:sagan /var/log/sagan /var/run/sagan
+
 chown sagan:sagan /var/run/sagan.fifo
 chmod 666 /var/run/sagan.fifo /var/log/*
 chmod ugo+x /var/log/sagan
 
-echo "Starting Sagan"
+echo "Starting Sagan ('$*')"
 sagan "$@"
