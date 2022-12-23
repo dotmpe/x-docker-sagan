@@ -13,7 +13,10 @@ ARG DEVPACKAGES="build-essential checkinstall automake autoconf \
       libmaxminddb-dev libesmtp-dev libfastjson-dev libestr-dev libyaml-dev \
       libbsd-dev liblognorm-dev"
 
-ARG sagan_cflags="--disable-libpcap --enable-syslog --enable-system-strstr"
+ARG sagan_agflags=""
+ARG sagan_cflags="--prefix=/usr --sysconfdir=/etc --disable-libpcap --enable-syslog --enable-system-strstr"
+ENV prefix=/usr
+ENV sysconfdir=/etc
 
 ARG sagan_version=main
 
@@ -26,11 +29,11 @@ RUN apt-get update -qq && \
   git clone https://github.com/quadrantsec/sagan -b ${sagan_version} && \
     \
   cd /usr/local/src/sagan && \
-  ./autogen.sh $sagan_cflags && \
+  ./autogen.sh $sagan_agflags && \
   ./configure $sagan_cflags && \
   make && \
   make install && \
-  cp /usr/local/src/sagan/etc/sagan.yaml /usr/local/etc/sagan.yaml && \
+  cp /usr/local/src/sagan/etc/sagan.yaml ${sysconfdir:?}/sagan.yaml && \
   mkdir -p /var/log/sagan && \
   mkdir -p /var/run/sagan && \
   useradd sagan --shell /sbin/nologin --home / && \
@@ -59,6 +62,15 @@ COPY docker/etc-syslog-ng-confd-10-sagan-pipe.conf /etc/syslog-ng/conf.d/10-saga
 #COPY docker/etc-syslog-ng-confd-10-sagan-json.conf /etc/syslog-ng/conf.d/10-sagan-json.conf
 #ENV input_type=json
 #ENV json_software=syslog-ng
+#ENV json_map=${sysconfdir:?}/sagan-rules/json-input.map
+
+
+RUN sed -i 's/use_dns.no./use_dns(yes)/' /etc/syslog-ng/syslog-ng.conf
+#RUN sed -i 's/dns_cache.no./dns_cache(yes)/' /etc/syslog-ng/syslog-ng.conf
+#RUN sed -i 's/use_fqdn.no./use_fqdn(yes)/' /etc/syslog-ng/syslog-ng.conf
+RUN sed -i 's/long_hostnames.no./long_hostnames(yes)/' /etc/syslog-ng/syslog-ng.conf
+RUN sed -i 's/chain_hostnames/keep_hostname(yes); chain_hostnames/' /etc/syslog-ng/syslog-ng.conf
+
 
 EXPOSE 514/udp
 

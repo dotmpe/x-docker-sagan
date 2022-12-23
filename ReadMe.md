@@ -4,7 +4,7 @@ A test setup for Sagan.
 
 - Sagan is a log processor.
 - Meer is a log spooler
-- EveBox is a web frontend (for Suricata+ES, but can read EVE JSON into sqlite as well)
+- EveBox is a web frontend (for Suricata+ES, but can read EVE JSON into sqlite)
 - Enterprise Log Search and Archive (ELSA)
 
 
@@ -25,12 +25,42 @@ docker exec -ti sagan_dev logger -t sshd "User ubuntu not allowed because shell 
 
 To use, point rsyslog to send logs to UDP 5514.
 
+Run sa-mode EveBox ``./run-evebox.sh`` web UI at :5636
+
+
+# Syslog receiver
+Not sure why using SyslogNG iso rsyslog
+
+10-sagan-pipe.conf works, but even when using HOST the hostnames do not show
+up anywhere in Sagan, even if dns lookup seems to work OK (otherwise default-
+host is used).
+
+10-sagan-json.conf does not work with almost same setup, it defaults the source
+adress.
+
+
+# Status
+Using baseimage so syslog-ng receiver can run beside sagan.
+
+See syslog section.
+
+Occasionally the FIFO open seems to stall but have not figured out why. Normal
+startup should report something like this:
+```
+
+  Dec 23 20:44:39 sagan-dev sagan[87]: [*] 
+  Dec 23 20:44:39 sagan-dev sagan[87]: [*] Attempting to open syslog FIFO (/var/run/sagan.fifo).
+  Dec 23 20:44:39 sagan-dev sagan[87]: [*] Successfully opened FIFO (/var/run/sagan.fifo).
+  Dec 23 20:44:39 sagan-dev sagan[87]: [*] FIFO capacity is 65536 bytes.  Changing to 1048576 bytes.
+```
+
 
 # Log
 
 [2022-12-21]
-: Committing accumulated, some initial script to build ELSA image as well.
-  Look at quadrantsec/meer, a spooler that can enrich as well.
+: Committing accumulated, some initial script to build ELSA image as well but
+  that is pretty stale and EveBox runs fine as UI.
+  Looked at (but not using) quadrantsec/meer, a spooler that can enrich as well.
 
 v0.2
 : New build based on phusion/baseimage. Configured to receive local syslog-ng.
