@@ -17,6 +17,7 @@ cp config_data ../sagan-rules/
 trackclients=60
 # XXX: default_host should be IP addr I think
 docker build . \
+  -f SyslogNG.Dockerfile \
   -t sagan-dev:baseimage-$base \
   --build-arg base=$base \
   --build-arg sagan_version=$sagan_version

@@ -29,7 +29,7 @@ Run sa-mode EveBox ``./run-evebox.sh`` web UI at :5636
 
 
 # Syslog receiver
-Not sure why using SyslogNG iso rsyslog
+SyslogNG because that ships with phusion/baseimage.
 
 10-sagan-pipe.conf works, but even when using HOST the hostnames do not show
 up anywhere in Sagan, even if dns lookup seems to work OK (otherwise default-
@@ -40,8 +40,7 @@ adress.
 
 
 # Status
-Using baseimage so syslog-ng receiver can run beside sagan.
-
+Using baseimage so syslog receiver can run beside sagan.
 See syslog section.
 
 Occasionally the FIFO open seems to stall but have not figured out why. Normal
@@ -59,7 +58,7 @@ startup should report something like this:
 
 [2022-12-21]
 : Committing accumulated, some initial script to build ELSA image as well but
-  that is pretty stale and EveBox runs fine as UI.
+  that is pretty stale and EveBox runs fine.
   Looked at (but not using) quadrantsec/meer, a spooler that can enrich as well.
 
 v0.2
@@ -70,7 +69,6 @@ v0.1
 : Initial running server [2019-11-23](log/2019-11-23.md)
 
 #### Bugs
-- Alert shows two events for test-case, why?
 - Cannot build with `configure.sh --disable-syslog`:
   ```
   config-yaml.c: In function ‘Load_YAML_Config’:
