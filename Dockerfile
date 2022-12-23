@@ -49,7 +49,7 @@ RUN apt-get update -qq && \
   rm -Rf /var/log/* && \
   rm -Rf /var/cache/*
 
-COPY docker/run.sh /root/run.sh 
+COPY docker/sagan.sh /root/run.sh 
 
 COPY docker/etc-my_initd-20_sagan.init /etc/my_init.d/20_sagan.init
 #COPY docker/etc-my_initd-20_sagan.shutdown /etc/my_init.post_shutdown.d/20_sagan.shutdown

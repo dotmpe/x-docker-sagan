@@ -17,6 +17,7 @@ include $RULE_PATH/samba.rules
 include $RULE_PATH/sendmail.rules
 include $RULE_PATH/su.rules
 include $RULE_PATH/syslog.rules
+include $RULE_PATH/syslog-error.rules
 include $RULE_PATH/tcp.rules
 include $RULE_PATH/telnet.rules
 include $RULE_PATH/web-attack.rules

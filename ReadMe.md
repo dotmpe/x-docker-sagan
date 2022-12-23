@@ -1,6 +1,10 @@
 This is part of dev/Cloud/SIEM
 
+A test setup for Sagan.
+
 - Sagan is a log processor.
+- Meer is a log spooler
+- EveBox is a web frontend (for Suricata+ES, but can read EVE JSON into sqlite as well)
 - Enterprise Log Search and Archive (ELSA)
 
 
@@ -25,7 +29,8 @@ To use, point rsyslog to send logs to UDP 5514.
 # Log
 
 [2022-12-21]
-: Committing accumulated, some initial script to build ELSA image as well
+: Committing accumulated, some initial script to build ELSA image as well.
+  Look at quadrantsec/meer, a spooler that can enrich as well.
 
 v0.2
 : New build based on phusion/baseimage. Configured to receive local syslog-ng.

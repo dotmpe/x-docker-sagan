@@ -244,8 +244,8 @@ EOM
 mkdir -p /var/run/sagan
 mkdir -p /var/log/sagan
 
-test -p /var/run/sagan.fifo ||
-  mkfifo /var/run/sagan.fifo
+test -p /var/run/sagan.fifo || mkfifo /var/run/sagan.fifo
+
 chmod 420 /var/run/sagan.fifo
 
 chown nobody:sagan /var/run/sagan -R
@@ -257,5 +257,8 @@ chown sagan:sagan /var/run/sagan.fifo
 chmod 666 /var/run/sagan.fifo /var/log/*
 chmod ugo+x /var/log/sagan
 
-echo "Starting Sagan ('$*')"
-sagan "$@"
+echo "Starting Sagan"
+#sagan -d engine -d json -d malformed -d sysload -d external
+sagan \
+  --debug engine,smtp,normalize,plog,external,clients
+#
