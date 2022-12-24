@@ -65,11 +65,13 @@ COPY docker/etc-syslog-ng-confd-10-sagan-pipe.conf /etc/syslog-ng/conf.d/10-saga
 #ENV json_map=${sysconfdir:?}/sagan-rules/json-input.map
 
 
-RUN sed -i 's/use_dns.no./use_dns(yes)/' /etc/syslog-ng/syslog-ng.conf
+#RUN sed -i 's/use_dns.no./use_dns(yes)/' /etc/syslog-ng/syslog-ng.conf
 #RUN sed -i 's/dns_cache.no./dns_cache(yes)/' /etc/syslog-ng/syslog-ng.conf
 #RUN sed -i 's/use_fqdn.no./use_fqdn(yes)/' /etc/syslog-ng/syslog-ng.conf
-RUN sed -i 's/long_hostnames.no./long_hostnames(yes)/' /etc/syslog-ng/syslog-ng.conf
-RUN sed -i 's/chain_hostnames/keep_hostname(yes); chain_hostnames/' /etc/syslog-ng/syslog-ng.conf
+#RUN sed -i 's/long_hostnames.no./long_hostnames(yes)/' /etc/syslog-ng/syslog-ng.conf
+
+# use first host in relay chain for HOST value
+RUN sed -i 's/chain_hostnames.off./chain_hostnames(on)/' /etc/syslog-ng/syslog-ng.conf
 
 
 EXPOSE 514/udp

@@ -43,8 +43,9 @@ adress.
 Using baseimage so syslog receiver can run beside sagan.
 See syslog section.
 
-Occasionally the FIFO open seems to stall but have not figured out why. Normal
-startup should report something like this:
+Occasionally the FIFO open seems to stall but then it is just waiting for a new
+syslog message to appear on through the pipe. Normal startup should report
+something like this:
 ```
 
   Dec 23 20:44:39 sagan-dev sagan[87]: [*] 
@@ -55,6 +56,13 @@ startup should report something like this:
 
 
 # Log
+
+[2022-12-24] 
+: Tried to configure stack using docker, but having trouble with hostnames.
+  Need to use DNS since SyslogNG only passes hostnames for the event origin,
+  but when in a container the localhost IP changes to docker network.
+
+  running container in `host` network mode
 
 [2022-12-21]
 : Committing accumulated, some initial script to build ELSA image as well but
@@ -67,6 +75,7 @@ v0.2
 
 v0.1
 : Initial running server [2019-11-23](log/2019-11-23.md)
+
 
 #### Bugs
 - Cannot build with `configure.sh --disable-syslog`:

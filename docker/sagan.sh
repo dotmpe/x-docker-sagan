@@ -63,8 +63,8 @@ true "${sysconfdir:=/usr/local/etc}"
 : "${default_host:="169.254.0.1"}"
 : "${default_port:="514"}"
 : "${default_proto:="udp"}"
-: "${dns_warnings:="enabled"}"
-: "${source_lookup:="enabled"}"
+: "${source_lookup:="disabled"}"
+: "${dns_warnings:="disabled"}"
 : "${max_threads:="100"}"
 : "${classification:="$RULE_PATH/classification.config"}"
 : "${reference:="$RULE_PATH/reference.config"}"
@@ -228,6 +228,11 @@ outputs:
     alerts: yes
     filename: $LOG_PATH/eve.json
 #    filename: ${SOCKET_PATH}
+#- eve-log:
+#    enabled: yes
+#    logs: no
+#    alerts: yes
+#    filename: $LOG_PATH/alert.json
 - alert:
     enabled: yes
     filename: "$LOG_PATH/alert.log"
@@ -248,24 +253,22 @@ EOM
 
 } >> ${sysconfdir:?}/sagan.yaml
 
-mkdir -p /var/run/sagan
-mkdir -p /var/log/sagan
+fifodir=$(dirname "${FIFO:?}")
+rtdir=/var/run/sagan
+logdir=/var/log/sagan
+mkdir -vp "$fifodir" "$rtdir" "$logdir"
 
-test -p /var/run/sagan.fifo || mkfifo /var/run/sagan.fifo
+test -p "$FIFO" || mkfifo "$FIFO"
+#chmod 420 "$FIFO"
+chown sagan:sagan "$FIFO"
 
-chmod 420 /var/run/sagan.fifo
+chown -R sagan:sagan "$rtdir" "$logdir"
 
-chown nobody:sagan /var/run/sagan -R
-chown nobody:sagan /var/log/sagan -R
-
-chown -R sagan:sagan /var/log/sagan /var/run/sagan
-
-chown sagan:sagan /var/run/sagan.fifo
-chmod 666 /var/run/sagan.fifo /var/log/*
-chmod ugo+x /var/log/sagan
+stat "$FIFO"
 
 echo "Starting Sagan"
 sagan
-#-d syslog
+#-d syslog,engine
+#-d syslog,engine
 #-d engine
 #
