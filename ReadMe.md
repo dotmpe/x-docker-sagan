@@ -10,11 +10,12 @@ A test setup for Sagan.
 
 # Images
 
-baseimage focal (master)
-Tagged by hand because ubuntu focal update server was down and new build was
-impossible.
+[2023-01-13]
+: [baseimage focal (master)](https://hub.docker.com/layers/dotmpe/sagan-dev/2.0.2-focal-syslogng/images/sha256-4711c948a7a7f888785164a900df4a2fe8126c08a20b00e2b3478911963ffda3)
+  ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/dotmpe/sagan-dev/2.0.2-focal-syslogng?style=flat-square)
 
-![Docker Image Size (tag)](https://img.shields.io/docker/image-size/dotmpe/sagan-dev/2.0.2-focal-syslogng?style=flat-square)
+  [baseimage focal (1.2.0)](https://hub.docker.com/layers/dotmpe/sagan-dev/2.0.2-focal-1.2.0/images/sha256-23afa3fafaa91f94ee1557689fdc4aa974fef925066a5372cc1063eee1c54f5a)
+  ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/dotmpe/sagan-dev/2.0.2-focal-1.2.0?style=flat-square)
 
 
 # Containerized Sagan
