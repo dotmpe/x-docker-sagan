@@ -20,6 +20,8 @@ ENV sysconfdir=/etc
 
 ARG sagan_version=main
 
+# Build Sagan on top of baseimage and then remove DEVPACKAGES again, throw away
+# src and some var afterward, cutting the image down from ~<650MB to about half.
 RUN apt-get update -qq && \
   DEBIAN_FRONTEND=noninteractive RUNLEVEL=1 \
   apt-get install -qqy $MAINPACKAGES $DEVPACKAGES && \

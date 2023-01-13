@@ -1,23 +1,14 @@
 set -eu
 . ./_lib.sh
-
-#saganrules
-cp config_data ../sagan-rules/
-: "${base:=master}"
-: "${sagan_version:=v,2,0.2}"
-#: "${sagan_version:=main}"
-# XXX: default_host should be IP addr I think
-docker build . \
-  -f SyslogNG.Dockerfile \
-  -t sagan-dev:baseimage-$base \
-  --build-arg base=$base \
-  --build-arg sagan_version=$sagan_version
+. ./conf-sagan.sh
+#. ./build-sagan.sh
 
 # Container vars
 : "${domain:=$(hostname -f)}"
 #: "${domain:=localhost.localdomain}"
 
 # Params
+# XXX: default_host should be IP addr I think
 : "${default_host:=$(hostname -I|cut -d' ' -f1)}"
 : "${sensor_name:=sagan-$(hostname -s)}"
 : "${cluster_name:=sagan-lab}"

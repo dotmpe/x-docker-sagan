@@ -8,6 +8,15 @@ A test setup for Sagan.
 - Enterprise Log Search and Archive (ELSA)
 
 
+# Images
+
+baseimage focal (master)
+Tagged by hand because ubuntu focal update server was down and new build was
+impossible.
+
+![Docker Image Size (tag)](https://img.shields.io/docker/image-size/dotmpe/sagan-dev/2.0.2-focal-syslogng?style=flat-square)
+
+
 # Containerized Sagan
 
 Build from ./Dockerfile.
